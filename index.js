@@ -9,8 +9,8 @@ app.use(cors())
 app.use(express.json())
 app.use(express.static('build'))
 
-morgan.token('jsonPost', function getPost(req, res) {
-  return JSON.stringify(req.body)
+morgan.token('jsonPost', function getPost(request) {
+  return JSON.stringify(request.body)
 })
 
 app.use(
@@ -78,7 +78,7 @@ app.post('/api/persons', (request, response, next) => {
 // DELETE
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndRemove(request.params.id)
-    .then(result => {
+    .then(() => {
       response.status(204).end()
     })
     .catch(error => next(error))
@@ -107,7 +107,10 @@ const unknownEndpoint = (request, response) => {
 
 // INFO
 app.get('/info', (request, response) => {
-  const totalEntries = persons.length
+  var totalEntries = []
+  Person.find({}).then(persons => {
+    totalEntries = persons.length
+  })
   const date = new Date()
   response.send(`<p>Phonebook has info for ${totalEntries} people</p>
       <p>${date} </p>`)
